@@ -1,0 +1,13 @@
+// auth.ts
+
+export const checkAuthorizationStatus = async (): Promise<{
+  status: boolean;
+}> => {
+  const url = new URL(endpoints.IS_AUTHORIZED, BACKEND_HOST);
+  const response = await fetch(url, { credentials: "include" });
+
+  if (!response.ok) {
+    return { status: true }; -> to be changed to false (changed for now as using a codespace.)
+  }
+  return response.json();
+};
