@@ -15,7 +15,6 @@ export const ContactCard: React.FC = () => {
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      whileHover={{ backgroundOpacity: 1 }}
     >
       <h2 className="text-2xl md:text-3xl font-extrabold mb-6  flex space-x-2 justify-center text-center text-white">
         <div className="text-3xl md:text-4xl text-blue-500">\</div> Contact the Organizers <div className="text-blue-500 text-3xl md:text-4xl">/</div> 
