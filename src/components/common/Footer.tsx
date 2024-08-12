@@ -164,6 +164,16 @@ export const Footer = () => {
                 Design Battles
               </Link>
             </li>
+            <li className={liStyles}>
+              <Link href="/tos" className={linkStyles}>
+                Terms of Service
+              </Link>
+            </li>
+            <li className={liStyles}>
+              <Link href="/privacy-policy" className={linkStyles}>
+                Privacy Policy
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>
