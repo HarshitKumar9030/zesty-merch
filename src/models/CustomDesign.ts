@@ -1,12 +1,10 @@
-// @ts-nocheck 
-
-import mongoose, { model, Model, Schema } from "mongoose";
+ import mongoose, { model, Model, Schema } from "mongoose";
 import { CustomDesignDocument } from "@/types/types";
 
 const CustomDesignSchema = new Schema<CustomDesignDocument>(
   {
     productId: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId as any,
       ref: "Product",
       required: true,
     },
@@ -27,6 +25,10 @@ const CustomDesignSchema = new Schema<CustomDesignDocument>(
       required: false,
     },
     name: {
+      type: String,
+      required: false,
+    },
+    editUrl: {
       type: String,
       required: false,
     },

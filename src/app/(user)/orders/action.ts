@@ -127,7 +127,7 @@ export const saveOrder = async (data: Stripe.Checkout.Session) => {
       size: item.size,
       color: item.color,
       image: item.image,
-      designId: item.designId, // Handle multiple design IDs
+      designId: item.designId, 
     }));
 
     const newOrder: any = {

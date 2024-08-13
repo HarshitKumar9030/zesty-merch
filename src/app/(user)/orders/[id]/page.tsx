@@ -1,4 +1,3 @@
-// @ts-nocheck 
 import { Products } from "@/components/products/Products";
 import { format } from "date-fns";
 import { getOrder } from "../action";
@@ -6,10 +5,11 @@ import { Suspense } from "react";
 import ProductSkeleton from "@/components/skeletons/ProductSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EnrichedProducts } from "@/types/types";
+import { cn } from "@/libs/utils";
 
 export async function generateMetadata() {
   return {
-    title: `Order Details | Ecommerce Template`,
+    title: `Order Details | Zesty Merch`,
   };
 }
 
@@ -44,11 +44,31 @@ const OrderProducts = async ({ id }: { id: string }) => {
       (total: number, product: any) => total + product.quantity,
       0
     );
-    const allProducts: EnrichedProducts[] = order.products.filter(Boolean) as EnrichedProducts[];
+    const allProducts: EnrichedProducts[] = order.products.filter(
+      Boolean
+    ) as unknown as EnrichedProducts[];
     const productsText = totalProducts === 1 ? "item" : "items";
 
-    const purchaseDate = order.purchaseDate ? format(new Date(order.purchaseDate), "dd LLL yyyy") : "N/A";
-    const expectedDeliveryDate = order.expectedDeliveryDate ? format(new Date(order.expectedDeliveryDate), "dd LLL yyyy") : "N/A";
+    const purchaseDate = order.purchaseDate
+      ? format(new Date(order.purchaseDate), "dd LLL yyyy")
+      : "N/A";
+    const expectedDeliveryDate = order.expectedDeliveryDate
+      ? format(new Date(order.expectedDeliveryDate), "dd LLL yyyy")
+      : "N/A";
+
+    const designIds = allProducts
+      .map((product) => {
+        if (Array.isArray(product.designId)) {
+          return product.designId.map((id) => id.toString()).join(", ");
+        } else if (product.designId) {
+          return product.designId.toString();
+        } else {
+          return "N/A";
+        }
+      })
+      .filter((designId) => designId !== "N/A")
+      .join("; ");
+    console.log(designIds);
 
     return (
       <div className="flex flex-col-reverse flex-wrap justify-between pt-12 sm:flex-row gap-11 sm:gap-8">
@@ -63,23 +83,15 @@ const OrderProducts = async ({ id }: { id: string }) => {
               <span>Order Number</span> <span>{order?.orderNumber}</span>
             </div>
             <div className={bxInfoStyles}>
-              <span>Order Date</span>{" "}
-              <span>{purchaseDate}</span>
+              <span>Order Date</span> <span>{purchaseDate}</span>
             </div>
             <div className={bxInfoStyles}>
               <span>Expected Delivery Date</span>{" "}
               <span>{expectedDeliveryDate}</span>
             </div>
-            {allProducts.some((product) => product?.designId && product.designId.length > 0) && (
+            {designIds && (
               <div className={bxInfoStyles}>
-                <span>Design Ids</span>{" "}
-                <span>
-                  {allProducts
-                    .map((product) =>
-                      product.designId ? product.designId.join(", ") : "N/A"
-                    )
-                    .join("; ")}
-                </span>
+                <span>Design Ids</span> <span>{designIds}</span>
               </div>
             )}
           </div>

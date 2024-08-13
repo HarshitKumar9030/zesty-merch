@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useCallback, useTransition, useEffect } from "react";
@@ -9,9 +7,10 @@ import type { Design } from "@canva/connect-api-ts/types.gen";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import Image from "next/image";
 import { Session } from "next-auth";
-import { getDesign } from "@/services";
+import { createDesign, getDesign } from "@/services";
 import AddToCart from "../cart/AddToCart";
 import { Tooltip } from "react-tooltip";
+import { saveImage } from "@/app/customize/action";
 import "react-tooltip/dist/react-tooltip.css";
 import {
   CustomDesignDocument,
@@ -28,6 +27,7 @@ interface CustomDesign {
   image: string;
   email: string;
   productId: string;
+  editUrl: string | undefined;
 }
 
 interface SuccessfulDesignModalProps {
@@ -52,6 +52,7 @@ export const SuccessfulDesignModal = ({
 
   const [user, setUser] = useState<UserDocument>({} as UserDocument);
   const { data: session } = useSession();
+  const [cloudinaryUrl, setcloudinaryUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (session && session.user) {
@@ -65,32 +66,81 @@ export const SuccessfulDesignModal = ({
 
   const CustomDesign: CustomDesign = {
     id: createdDesign?.id,
-    image: imageUrl as string,
+    image: cloudinaryUrl as string,
     email: user.email,
     productId: productPlainObject._id,
+    editUrl: createdDesign?.urls.edit_url,
   };
 
   const handleCart = useCallback(() => {
-    startTransition(() => {
-      addDesign(CustomDesign as any);
-      addItem(
-        productPlainObject.category,
-        productPlainObject._id,
-        productPlainObject.sizes[0],
-        selectedVariant.priceId,
-        productPlainObject.price,
-        createdDesign?.id as string
-      );
+    if (!imageUrl) {
+      console.error("Image URL not available, cannot add to cart.");
+      return;
+    }
 
-      onClose(false);
+    const save = async (url: string) => {
+      try {
+        const savedUrl = await saveImage(url);
+        setcloudinaryUrl(savedUrl as string);
+        return savedUrl;
+      } catch (error) {
+        console.error("Error saving image:", error);
+        return null;
+      }
+    };
+
+    save(imageUrl).then((result) => {
+      if (result) {
+        startTransition(() => {
+          addDesign({
+            ...CustomDesign,
+            image: result,
+          } as any);
+          addItem(
+            productPlainObject.category,
+            productPlainObject._id,
+            productPlainObject.sizes[0],
+            selectedVariant.priceId,
+            productPlainObject.price,
+            createdDesign?.id as string
+          );
+          onClose(false);
+        });
+      } else {
+        console.error("Failed to save the image, cart update aborted.");
+      }
     });
-  }, [createdDesign, session, product, selectedVariant, startTransition, imageUrl]);
+  }, [createdDesign, startTransition, session, product, imageUrl]);
 
   const handleDesign = useCallback(() => {
-    startTransition(() => {
-      addDesign(CustomDesign as any);
+    if (!imageUrl) {
+      console.error("Image URL not available, cannot save design.");
+      return;
+    }
 
-      onClose(false);
+    const save = async (url: string) => {
+      try {
+        const savedUrl = await saveImage(url);
+        setcloudinaryUrl(savedUrl as string);
+        return savedUrl;
+      } catch (error) {
+        console.error("Error saving image:", error);
+        return null;
+      }
+    };
+
+    save(imageUrl).then((result) => {
+      if (result) {
+        startTransition(() => {
+          addDesign({
+            ...CustomDesign,
+            image: result, // Ensure image is set
+          } as any);
+          onClose(false);
+        });
+      } else {
+        console.error("Failed to save the design. Operation aborted.");
+      }
     });
   }, [createdDesign, startTransition, session, product, imageUrl]);
 

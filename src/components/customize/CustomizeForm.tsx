@@ -14,6 +14,7 @@ import type { Product } from "@/models";
 import { DemoAlert } from "../canva/alert";
 import { Session } from "next-auth";
 import { useAppContext } from "@/context";
+import Image from "next/image"
 
 const CustomizeForm = ({ product, session }: any) => {
   const productPlainObject: ProductDocument = JSON.parse(product);
@@ -70,6 +71,7 @@ const CustomizeForm = ({ product, session }: any) => {
       "https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto" +
       selectedVariant?.images[0],
   };
+  const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
 
   return (
     <>
@@ -80,10 +82,7 @@ const CustomizeForm = ({ product, session }: any) => {
         </h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="w-full flex justify-center items-center">
-            <ProductImages
-              name={productPlainObject.name}
-              selectedVariant={selectedVariant}
-            />
+            <Image src={cloudinaryString + selectedVariant?.images[0]} width={640} height={640} className="rounded-lg" alt="Design Image" />
           </div>
           <div className="flex flex-col relative justify-center items-center overflow-hidden bg-background-secondary rounded-md shadow-lg">
             <div className="absolute overflow-hidden md:h-48 md:w-48 w-36 h-36 -top-12 bg-clip-content -right-12 rounded-full bg-pink-600"></div>

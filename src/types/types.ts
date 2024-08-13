@@ -116,6 +116,7 @@ export interface CustomDesignDocument extends Document {
   id: string;
   description?: string;
   name?: string;
+  editUrl?: string;
 }
 
 export interface VariantsDocument {

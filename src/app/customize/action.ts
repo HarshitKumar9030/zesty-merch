@@ -1,4 +1,4 @@
-// @ts-nocheck 
+ 
 "use server";
 
 import { v2 as cloudinary } from 'cloudinary';
@@ -22,11 +22,9 @@ export const saveImage = async (image: File | string): Promise<string | { error:
         let buffer: Buffer;
 
         if (typeof image === 'string') {
-            // If the image is a URL, fetch the image and convert it to a buffer
             const response = await axios.get(image, { responseType: 'arraybuffer' });
             buffer = Buffer.from(response.data);
         } else {
-            // If the image is a File, convert it to a buffer
             const arrayBuffer = await image.arrayBuffer();
             buffer = Buffer.from(arrayBuffer);
         }
@@ -37,7 +35,7 @@ export const saveImage = async (image: File | string): Promise<string | { error:
                     console.error('Error uploading image to Cloudinary:', err);
                     reject(err);
                 } else {
-                    resolve(result);
+                    resolve(result as any);
                 }
             }).end(buffer);
         });
@@ -48,8 +46,12 @@ export const saveImage = async (image: File | string): Promise<string | { error:
                 status: 500
             };
         }
-
-        return uploadResult.secure_url;
+        const trimUrl = function(url: string): string {
+            const parts = url.split('/');
+            return `/${parts[parts.length - 1]}`;
+        };
+        
+        return trimUrl(uploadResult.secure_url);
 
     } catch (error) {
         console.error('Failed to save image.', error);
