@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,9 +9,10 @@ import { MenuIcon } from "lucide-react";
 interface DesignCardProps {
   design: CustomDesignDocument;
   isLoading?: boolean;
+  onDelete: (designId: string) => void; 
 }
 
-const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
+const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading, onDelete }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [modalContent, setModalContent] = useState<
     "editName" | "editDescription" | null
@@ -34,9 +36,11 @@ const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
     closeMenu();
   };
 
-  const handleDeleteDescription = () => {
+  const handleDeleteDesign = () => {
+    if (design._id) {
+      onDelete(design._id.toString());
+    }
     closeMenu();
-    alert("Delete Description");
   };
 
   if (isLoading) {
@@ -51,6 +55,11 @@ const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
     );
   }
 
+  const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
+  const imageUrl = design.image.startsWith("/")
+    ? `${cloudinaryString}${design.image}`
+    : design.image;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -60,7 +69,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
     >
       <div className="bg-neutral-800 h-full p-4 rounded-lg">
         <Image
-          src={design.image}
+          src={imageUrl}
           alt={`Design ${design.id}`}
           width={400}
           height={300}
@@ -80,7 +89,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
           </div>
           <div className="text-13 text-neutral-400">
             {design.description ||
-              "Damn your design looks sick, tho this is a default description, add your own description by pressing the button above."}
+              "This is a default description. Add your own by pressing the button above."}
           </div>
           <AnimatePresence>
             {isMenuOpen && (
@@ -102,7 +111,12 @@ const DesignCard: React.FC<DesignCardProps> = ({ design, isLoading }) => {
                 >
                   Edit Description
                 </button>
-
+                <button
+                  onClick={handleDeleteDesign}
+                  className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-neutral-700"
+                >
+                  Delete Design
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

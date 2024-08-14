@@ -12,6 +12,7 @@
     "@canva/connect-api-ts": "file:client/ts",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
+    "@headlessui/react": "^2.1.2",
     "@heroicons/react": "v1",
     "@hey-api/client-fetch": "^0.1.3",
     "@hey-api/openapi-ts": "^0.52.3",

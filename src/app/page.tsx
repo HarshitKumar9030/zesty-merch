@@ -9,10 +9,12 @@ import { Text } from "@/components/ui/text"
 import { Mails } from "@/components/ui/mails"
 import { Speaker } from "lucide-react";
 import PoweredBy from "../components/ui/poweredby";
+import FlyingBee from "@/components/ui/bee";
 
 const Home = async () => {
   return (
     <>
+    <FlyingBee />
     <Hero />
     <PoweredBy />
     <Card />

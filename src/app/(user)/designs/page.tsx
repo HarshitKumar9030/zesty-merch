@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { UserDocument, CustomDesignDocument } from '../../../types/types';
 import { useSession } from 'next-auth/react';
-import { getCustomDesignsByEmail } from '../../../app/actions';
+import { useRouter } from 'next/navigation';
+import { UserDocument, CustomDesignDocument } from '../../../types/types';
+import { getCustomDesignsByEmail, deleteDesign } from '../../../app/actions'; 
 import DesignCard from '../../../components/design/DesignCard';
 import Pagination from '../../../components/design/Pagination';
 import { motion } from 'framer-motion';
@@ -11,8 +12,9 @@ import Link from "next/link";
 import { Button } from '@/components/ui/moving-border';
 
 const UserDesigns = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [user, setUser] = useState<UserDocument>({} as UserDocument);
-  const { data: session } = useSession();
   const [designs, setDesigns] = useState<CustomDesignDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,10 +22,14 @@ const UserDesigns = () => {
   const designsPerPage = 10;
 
   useEffect(() => {
-    if (session && session.user) {
+    if (status === 'loading') return; 
+
+    if (!session) {
+      router.push('/'); 
+    } else {
       setUser(session.user as UserDocument);
     }
-  }, [session]);
+  }, [session, status, router]);
 
   useEffect(() => {
     if (user.email) {
@@ -47,6 +53,17 @@ const UserDesigns = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handleDeleteDesign = async (designId: string) => {
+    try {
+      await deleteDesign(designId); 
+      setDesigns((prevDesigns) =>
+        prevDesigns.filter((design) => design._id !== designId)
+      );
+    } catch (error) {
+      console.error("Error deleting design:", error);
+    }
+  };
+
   const filteredDesigns = designs.filter((design) => {
     const idString = design._id ? design._id.toString() : '';
     const nameMatch = design.name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -55,7 +72,6 @@ const UserDesigns = () => {
     
     return nameMatch || idMatch || designIdMatch;
   });
-  
 
   const indexOfLastDesign = currentPage * designsPerPage;
   const indexOfFirstDesign = indexOfLastDesign - designsPerPage;
@@ -79,17 +95,23 @@ const UserDesigns = () => {
             className="px-4 py-2 rounded-lg border border-neutral-900 bg-neutral-800 text-neutral-100 placeholder-neutral-400"
           />
           <Link href="/products">
-            <Button borderRadius="1.75rem" className=" bg-slate-900 text-white border-slate-900">Create Design</Button>
+            <Button borderRadius="1.75rem" className="bg-slate-900 text-white border-slate-900">Create Design</Button>
           </Link>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading
           ? Array.from({ length: designsPerPage }).map((_, index) => (
-              <DesignCard key={index} design={{} as CustomDesignDocument} isLoading={true} />
+              <DesignCard key={index} design={{} as CustomDesignDocument} isLoading={true} onDelete={function (designId: string): void {
+              throw new Error('Function not implemented.');
+            } } />
             ))
           : currentDesigns.map((design) => (
-              <DesignCard key={design._id} design={design} />
+              <DesignCard
+                key={design._id}
+                design={design}
+                onDelete={handleDeleteDesign} 
+              />
             ))}
       </div>
       <Pagination

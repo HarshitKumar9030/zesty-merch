@@ -182,6 +182,19 @@ export async function addOrEditName(designId: string, name: string): Promise<Cus
   }
 }
 
+export async function deleteDesign(designId: string): Promise<void> {
+  try {
+    await connectDB();
+    const design = await CustomDesign.findByIdAndDelete(designId);
+    if (!design) {
+      throw new Error('Design not found');
+    }
+  } catch (error) {
+    console.error('Error deleting design:', error);
+    throw error;
+  }
+}
+
 export async function handleContactForm(formData: Partial<ContactDocument>) {
   try {
     await connectDB();
