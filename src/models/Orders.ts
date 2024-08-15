@@ -28,7 +28,7 @@ const ProductsSchema = new Schema<ProductsDocument>({
     required: false,
   },
   designId: [{
-    type: Schema.Types.ObjectId,
+    type: String, 
     required: false,
   }]
 });

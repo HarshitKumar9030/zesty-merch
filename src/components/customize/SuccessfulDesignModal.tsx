@@ -102,7 +102,7 @@ export const SuccessfulDesignModal = ({
             productPlainObject.sizes[0],
             selectedVariant.priceId,
             productPlainObject.price,
-            createdDesign?.id as string
+            createdDesign?.id as any
           );
           onClose(false);
         });
@@ -134,7 +134,7 @@ export const SuccessfulDesignModal = ({
         startTransition(() => {
           addDesign({
             ...CustomDesign,
-            image: result, // Ensure image is set
+            image: result, 
           } as any);
           onClose(false);
         });

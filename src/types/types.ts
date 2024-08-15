@@ -37,7 +37,7 @@ export interface EnrichedProducts {
   image: string[];
   name: string;
   purchased: boolean;
-  designId?: Schema.Types.ObjectId | null;
+  designId?: string[];
   _id:  Schema.Types.ObjectId;
 }
 
@@ -77,7 +77,7 @@ export interface ProductsDocument {
   size: string;
   quantity: number;
   _id: string;
-  designId?: Schema.Types.ObjectId[];
+  designId?: string[];
 }
 
 export interface FavoritesDocument extends Document {

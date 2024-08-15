@@ -14,7 +14,6 @@ import {
   CustomDesignDocument
 } from "@/types/types";
 import { Product } from "@/models/Products";
-import { CustomDesign } from "@/models/CustomDesign";
 import Stripe from "stripe";
 import { emptyCart, getItems } from "@/app/(carts)/cart/action";
 
@@ -32,6 +31,8 @@ export const getUserOrders = async () => {
         const dateB = new Date(b.purchaseDate.toString());
         return dateB.getTime() - dateA.getTime();
       });
+    } else {
+      console.log("No orders found for userId:", userId);
     }
 
     return userOrders;
@@ -50,7 +51,6 @@ export const getOrder = async (orderId: string) => {
     );
 
     if (!orderFound) {
-      console.log("Order not found");
       return null;
     }
 
@@ -62,6 +62,12 @@ export const getOrder = async (orderId: string) => {
             (variant: VariantsDocument) => variant.color === product.color
           );
           if (matchingVariant) {
+            const designId = Array.isArray(product.designId)
+              ? product.designId
+              : product.designId
+              ? [product.designId]
+              : [];
+
             return {
               productId: matchingProduct._id,
               name: matchingProduct.name,
@@ -72,10 +78,14 @@ export const getOrder = async (orderId: string) => {
               color: product.color,
               size: product.size,
               quantity: product.quantity,
-              designId: product.designId, // Ensure designId is included
-              _id: product.productId.toString(), // Set _id to productId
+              designId: designId,
+              _id: product.productId.toString(),
             };
+          } else {
+            console.log("No matching variant found for productId:", product.productId);
           }
+        } else {
+          console.log("No matching product found for productId:", product.productId);
         }
         return null;
       })
@@ -84,6 +94,7 @@ export const getOrder = async (orderId: string) => {
     const filteredEnrichedProducts = enrichedProducts.filter(
       (product) => product !== null
     );
+
 
     const enrichedOrder = {
       name: orderFound.name,
@@ -99,6 +110,7 @@ export const getOrder = async (orderId: string) => {
       _id: orderFound._id,
     };
 
+    console.log("Returning enriched order:", enrichedOrder);
     return enrichedOrder;
   } catch (error) {
     console.error("Error getting order:", error);
@@ -106,29 +118,36 @@ export const getOrder = async (orderId: string) => {
   }
 };
 
-
 export const saveOrder = async (data: Stripe.Checkout.Session) => {
   try {
     const userId = data.metadata?.userId;
     if (!userId || !data) {
-      console.error("Missing information.");
+      console.error("Missing information: userId or session data.");
       return null;
     }
 
     const cart = await getItems(userId);
     if (!cart) {
-      console.error("Products or cart not found.");
+      console.error("Products or cart not found for userId:", userId);
       return null;
     }
 
-    const products = cart.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      size: item.size,
-      color: item.color,
-      image: item.image,
-      designId: item.designId, 
-    }));
+    const products = cart.map((item) => {
+      const designIds = Array.isArray(item.designId)
+        ? item.designId
+        : item.designId
+        ? [item.designId]
+        : [];
+
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        image: item.image,
+        designId: designIds.length > 0 ? designIds : undefined,
+      };
+    });
 
     const newOrder: any = {
       name: data.customer_details?.name,
@@ -147,6 +166,7 @@ export const saveOrder = async (data: Stripe.Checkout.Session) => {
       total_price: data.amount_total,
     };
 
+
     const userOrders: OrdersDocument | null = await Orders.findOne({ userId });
 
     if (userOrders) {
@@ -158,7 +178,6 @@ export const saveOrder = async (data: Stripe.Checkout.Session) => {
         await Orders.findOneAndUpdate({ userId: userId }, userOrders, {
           new: true,
         });
-        console.log("Order successfully updated.");
       } else {
         console.info("This order has already been saved.");
       }

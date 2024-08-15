@@ -56,19 +56,19 @@ const OrderProducts = async ({ id }: { id: string }) => {
       ? format(new Date(order.expectedDeliveryDate), "dd LLL yyyy")
       : "N/A";
 
+    // Handling designIds: ensure it's always processed as an array
     const designIds = allProducts
       .map((product) => {
-        if (Array.isArray(product.designId)) {
-          return product.designId.map((id) => id.toString()).join(", ");
-        } else if (product.designId) {
-          return product.designId.toString();
-        } else {
-          return "N/A";
-        }
+        const designIdArray = Array.isArray(product.designId)
+          ? product.designId
+          : product.designId
+          ? [product.designId]
+          : [];
+
+        return designIdArray.join(", ");
       })
-      .filter((designId) => designId !== "N/A")
+      .filter((designId) => designId !== "")
       .join("; ");
-    console.log(designIds);
 
     return (
       <div className="flex flex-col-reverse flex-wrap justify-between pt-12 sm:flex-row gap-11 sm:gap-8">
