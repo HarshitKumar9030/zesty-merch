@@ -1,4 +1,4 @@
-// @ts-nocheck 
+// @ts-nocheck
 "use server";
 import {
   getContestById,
@@ -32,9 +32,7 @@ export default async function ContestPage({
     return;
   }
 
-  const designs: ContestDesignDocument[] = await getDesignsByContestId(
-    contestId 
-  );
+  const designs: ContestDesignDocument[] = await getDesignsByContestId(contestId);
 
   let isEnrolled = false;
   try {

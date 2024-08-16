@@ -1,5 +1,3 @@
-// @ts-nocheck 
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -21,24 +19,24 @@ const DesignBattlesPage: React.FC = () => {
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const contestsData = await getAllContests();  // Fetching data using the action
+        const contestsData = await getAllContests(); 
 
         const currentDate = new Date();
 
         const ongoing = contestsData
           .filter(
             (contest) =>
-              new Date(contest.startAt) <= currentDate &&
-              new Date(contest.endAt) >= currentDate
+              new Date(contest.startAt as any) <= currentDate &&
+              new Date(contest.endAt as any) >= currentDate
           )
           .slice(0, 10);
 
         const upcoming = contestsData
-          .filter((contest) => new Date(contest.startAt) > currentDate)
+          .filter((contest) => new Date(contest.startAt as any) > currentDate)
           .slice(0, 10);
 
-        setOngoingContests(ongoing);
-        setUpcomingContests(upcoming);
+        setOngoingContests(ongoing as ContestDocument[]);
+        setUpcomingContests(upcoming as ContestDocument[]);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch contests:", error);

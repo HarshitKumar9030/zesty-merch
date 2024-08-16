@@ -118,8 +118,10 @@ export const getRandomContestId = async () => {
   await connectDB();
 
   const currentDate = new Date();
+
   const contests = await Contest.find({
-    startAt: { $lte: currentDate },
+    startAt: { $lte: currentDate }, 
+    endAt: { $gte: currentDate },  
   }).exec();
 
   if (contests.length === 0) return null;
