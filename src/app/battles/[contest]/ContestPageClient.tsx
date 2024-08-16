@@ -26,7 +26,7 @@ const ContestPageClient: React.FC<ContestPageClientProps> = ({
   return (
     <div className="container bg-grid-white/5 mx-auto p-6">
       <ContestHeroSection contestData={contestData} />
-      <ContestMenu contestData={contestData} contestId={contestId} session={session} />
+      <ContestMenu isEnrolled={isEnrolled} contestData={contestData} contestId={contestId} session={session} />
       <div className="flex justify-center items-center">
         <ContestEnrollmentButton
           contestData={contestData}

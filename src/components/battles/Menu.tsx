@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { getUserEnrollmentStatus } from "@/app/battles/actions";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Session } from "next-auth";
@@ -10,11 +9,12 @@ import { ContestDocument } from "@/types/types";
 
 interface ContestMenuProps {
   contestData: ContestDocument;
+  isEnrolled: boolean;
   contestId: string;
   session: Session;
 }
 
-const ContestMenu: React.FC<ContestMenuProps> = ({ contestId, session, contestData }) => {
+const ContestMenu: React.FC<ContestMenuProps> = ({ contestId, session, contestData, isEnrolled }) => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +44,7 @@ const ContestMenu: React.FC<ContestMenuProps> = ({ contestId, session, contestDa
     };
   }, [menuOpen]);
 
-  if (!isOngoing) {
+  if (!isOngoing || !isEnrolled) {
     return null;
   }
 
