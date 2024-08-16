@@ -1,5 +1,6 @@
 // @ts-nocheck
 "use server";
+
 import {
   getContestById,
   getDesignsByContestId,
@@ -9,7 +10,8 @@ import ContestPageClient from "./ContestPageClient";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
 import { ContestDocument, ContestDesignDocument } from "@/types/types";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import mongoose from "mongoose";
 
 export default async function ContestPage({
   params,
@@ -25,10 +27,17 @@ export default async function ContestPage({
 
   const contestId = params.contest;
 
+  // Validate if contestId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(contestId)) {
+    console.error("Invalid contest ID format:", contestId);
+    notFound();
+    return;
+  }
+
   const contestData: ContestDocument | null = await getContestById(contestId);
   if (!contestData) {
     console.error("Contest data not found for ID:", contestId);
-    redirect("/error");
+    notFound();
     return;
   }
 
