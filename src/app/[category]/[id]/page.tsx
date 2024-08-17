@@ -1,4 +1,3 @@
-// @ts-nocheck 
 import { SingleProduct } from "@/components/products/SingleProduct";
 import { Products } from "@/components/products/Products";
 import { getProduct, getRandomProducts } from "@/app/actions";
@@ -7,8 +6,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/libs/auth";
 import { Session } from "next-auth";
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import ProductSkeleton from "@/components/skeletons/ProductSkeleton";
 import SingleProductSkeleton from "@/components/skeletons/SingleProductSkeleton";
+import mongoose from "mongoose";
 
 type Props = {
   params: {
@@ -21,50 +22,66 @@ const capitalizeFirstLetter = (string: string) => {
 };
 
 export async function generateMetadata({ params }: Props) {
-  const product: ProductDocument = await getProduct(params.id);
-  const capitalizedName = capitalizeFirstLetter(product?.name);
+  if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    notFound();
+  }
+
+  const product: ProductDocument | null | undefined = await getProduct(params.id);
+
+  if (!product) {
+    notFound();
+  }
+
+  const capitalizedName = capitalizeFirstLetter(product?.name as string);
 
   return {
     title: `${capitalizedName} | Zesty Merch`,
-    description: product.description,
+    description: product?.description,
   };
 }
 
-const ProductPage = async ({ params }: Props) => (
-  <section className="pt-14">
-    <Suspense
-      fallback={
-        <div>
-          <SingleProductSkeleton />
-          <h2 className="mt-24 mb-5 text-xl font-bold sm:text-2xl">
-            YOU MIGHT ALSO LIKE...
-          </h2>
-          <ProductSkeleton
-            extraClassname={"colums-mobile"}
-            numberProducts={6}
-          />
-        </div>
-      }
-    >
-      <AllProducts id={params.id} />
-    </Suspense>
-  </section>
-);
+const ProductPage = async ({ params }: Props) => {
+  if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    notFound();
+  }
+
+  const product: ProductDocument | null | undefined = await getProduct(params.id);
+
+  if (!product) {
+    notFound();
+  }
+
+  return (
+    <section className="pt-14">
+      <Suspense
+        fallback={
+          <div>
+            <SingleProductSkeleton />
+            <h2 className="mt-24 mb-5 text-xl font-bold sm:text-2xl">
+              YOU MIGHT ALSO LIKE...
+            </h2>
+            <ProductSkeleton extraClassname={"colums-mobile"} numberProducts={6} />
+          </div>
+        }
+      >
+        <AllProducts id={params.id} />
+      </Suspense>
+    </section>
+  );
+};
 
 const AllProducts = async ({ id }: { id: string }) => {
   const session: Session | null = await getServerSession(authOptions);
-  const product: ProductDocument = await getProduct(id);
+  const product: ProductDocument | null | undefined = await getProduct(id);
   const randomProducts = await getRandomProducts(id);
   const productJSON = JSON.stringify(product);
 
   return (
     <>
       <SingleProduct product={productJSON} session={session} />
-
       <h2 className="mt-24 mb-5 text-xl font-bold sm:text-2xl">
         YOU MIGHT ALSO LIKE...
       </h2>
-
       <Products products={randomProducts} extraClassname={"colums-mobile"} />
     </>
   );
