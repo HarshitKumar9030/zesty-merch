@@ -141,7 +141,7 @@ export async function getCustomDesignsByEmail(userEmail: string): Promise<Custom
   try {
     await connectDB();
     const customDesigns = await CustomDesign.find({ email: userEmail });
-    return customDesigns;
+    return JSON.stringify(customDesigns) as any;
   } catch (error) {
     console.error("Error fetching custom designs:", error);
     throw error;

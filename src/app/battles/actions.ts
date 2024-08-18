@@ -38,15 +38,36 @@ export const getContestById = async (
 };
 
 export const getDesignsByContestId = async (
-  contestId: string
+  contestId: string,
+  options: { limit?: number } = {}
 ): Promise<CustomDesignDocument[]> => {
   await connectDB();
-  const contest = await Contest.findById(contestId)
-    .populate("designs.user", "username")
-    .populate("designs.design", "name image")
-    .exec();
 
-  return contest?.designs || [];
+  const { limit = 50 } = options;
+
+  try {
+    const contest = await Contest.findById(contestId)
+      .populate({
+        path: "designs.user",
+        select: "username",
+      })
+      .populate({
+        path: "designs.design",
+        select: "name image",
+      })
+      .slice("designs", limit) 
+      .exec();
+
+    if (!contest) {
+      console.error(`Contest not found for ID: ${contestId}`);
+      return [];
+    }
+
+    return contest.designs || [];
+  } catch (error) {
+    console.error("Error fetching designs by contest ID:", error);
+    return [];
+  }
 };
 
 export const checkUsername = async (username: string): Promise<boolean> => {
@@ -160,7 +181,7 @@ export const checkEnrollment = async (
   userId: string
 ): Promise<boolean> => {
   await connectDB();
-  const contest = await Contest.findById(contestId).exec();
+  const contest = await Contest.findById(contestId);
   if (!contest) {
     throw new Error("Contest not found");
   }

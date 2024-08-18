@@ -18,7 +18,7 @@ const EnrollPage: React.FC = () => {
   const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Add loading state
+  const [isLoading, setIsLoading] = useState<boolean>(true); 
 
   const { toast } = useToast();
 
@@ -27,10 +27,10 @@ const EnrollPage: React.FC = () => {
       if (contest && session?.user?._id) {
         const enrolled = await checkEnrollment(contest as string, session.user._id);
         setIsEnrolled(enrolled);
-        setIsLoading(false); // Stop loading
+        setIsLoading(false); 
 
         if (enrolled) {
-          router.replace(`/battles/${contest}`); // Use replace to avoid re-triggering
+          router.replace(`/battles/${contest}`); 
         }
       }
     };

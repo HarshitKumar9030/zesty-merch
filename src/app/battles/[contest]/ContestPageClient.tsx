@@ -1,39 +1,42 @@
 import React from "react";
+import { redirect } from "next/navigation";
 import { ContestDocument, ContestDesignDocument } from "@/types/types";
 import { Session } from "next-auth";
 import { ContestHeroSection } from "@/components/battles/ContestHero";
-import { ContestEnrollmentButton } from "@/components/battles/ContestEnrollmentButton";
 import { ContestDesignsGrid } from "@/components/battles/ContestDesignsGrid";
 import { ContestLeaderboard } from "@/components/battles/ContestLeaderBoard";
 import ContestMenu from "@/components/battles/Menu";
+import LoadingPage from "../loading";
+import { ContestEnrollmentButton } from "@/components/battles/ContestEnrollmentButton";
 
 interface ContestPageClientProps {
   contestData: ContestDocument | null;
   designs: ContestDesignDocument[];
-  isEnrolled: boolean;
   contestId: string;
-  session: Session;
+  session: Session | null;
 }
 
-const ContestPageClient: React.FC<ContestPageClientProps> = ({
+const ContestPageClient: React.FC<ContestPageClientProps> = async ({
   contestData,
   designs,
-  isEnrolled,
   contestId,
   session,
 }) => {
-  if (!contestData) return <p>Loading...</p>;
+  if (!session) {
+    redirect("/battles");
+  }
+
+  if (!contestData) return <LoadingPage />;
+
   return (
     <div className="container bg-grid-white/5 mx-auto p-6">
       <ContestHeroSection contestData={contestData} />
-      <ContestMenu isEnrolled={isEnrolled} contestData={contestData} contestId={contestId} session={session} />
+
+      <ContestMenu contest={JSON.stringify(contestData)} contestId={contestId} session={session} />
       <div className="flex justify-center items-center">
-        <ContestEnrollmentButton
-          contestData={contestData}
-          isEnrolled={isEnrolled}
-          contestId={contestId}
-        />
+        <ContestEnrollmentButton contest={JSON.stringify(contestData)} contestId={contestId} />
       </div>
+
       <ContestDesignsGrid contestId={contestId} designs={designs} />
       <ContestLeaderboard designs={designs} />
     </div>

@@ -5,36 +5,53 @@ import { motion } from "framer-motion";
 
 const LoadingPage: React.FC = () => {
   return (
-    <div className="h-screen w-full mt-8 rounded-lg flex flex-col items-center justify-center bg-gradient-to-br  text-white from-[#0d1b2a] via-[#1e3a8a] to-[#9333ea]">
+    <div className="h-screen w-full flex flex-col items-center justify-center mt-8 text-white">
       <motion.div
-        className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r shadow-lg from-[#8338ec] to-[#3a0ca3]"
-        initial={{ scale: 0 }}
-        animate={{ scale: [1, 1.5, 1], rotate: [0, 360, 720] }}
-        transition={{
-          duration: 1.5,
-          ease: "easeInOut",
-          repeat: Infinity,
-          repeatType: "loop",
-        }}
+        className="relative flex items-center justify-center w-20 h-20 rounded-full shadow-lg"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeInOut" }}
       >
         <motion.div
-          className="w-10 h-10 rounded-full bg-gray-800"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: [1, 1.2, 1], rotate: [0, -360, -720] }}
+          className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-20 animate-ping"
           transition={{
-            duration: 1.5,
+            duration: 2,
+            ease: "easeInOut",
+            repeat: Infinity,
+          }}
+        ></motion.div>
+
+        <motion.div
+          className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 border-2 border-gray-700 shadow-inner"
+          initial={{ scale: 0 }}
+          animate={{ scale: [1, 1.4, 1], rotate: [0, 180, 360] }}
+          transition={{
+            duration: 1.8,
             ease: "easeInOut",
             repeat: Infinity,
             repeatType: "loop",
           }}
-        />
+        >
+          <motion.div
+            className="w-8 h-8 rounded-full bg-gray-700"
+            initial={{ scale: 0.8 }}
+            animate={{ scale: [1, 1.2, 1], rotate: [0, -180, -360] }}
+            transition={{
+              duration: 1.8,
+              ease: "easeInOut",
+              repeat: Infinity,
+              repeatType: "loop",
+            }}
+          />
+        </motion.div>
       </motion.div>
+
       <motion.p
-        className="mt-8 text-lg font-medium tracking-wider text-gray-300"
+        className="mt-10 text-lg font-semibold tracking-wider text-gray-400"
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0.6, 1, 0.6] }}
+        animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{
-          duration: 1.5,
+          duration: 1.8,
           ease: "easeInOut",
           repeat: Infinity,
           repeatType: "loop",
@@ -42,7 +59,7 @@ const LoadingPage: React.FC = () => {
       >
         Loading
         <motion.span
-          className="ml-1"
+          className="ml-1 text-purple-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{
@@ -55,7 +72,7 @@ const LoadingPage: React.FC = () => {
           .
         </motion.span>
         <motion.span
-          className="ml-1"
+          className="ml-1 text-blue-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{
@@ -69,7 +86,7 @@ const LoadingPage: React.FC = () => {
           .
         </motion.span>
         <motion.span
-          className="ml-1"
+          className="ml-1 text-teal-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{

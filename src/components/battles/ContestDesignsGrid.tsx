@@ -20,7 +20,6 @@ export const ContestDesignsGrid: React.FC<ContestDesignsGridProps> = ({
           design.ratings.reduce((sum: any, { rating }: any) => sum + rating, 0) /
             design.ratings.length || 0;
 
-        // Check if the image path matches the specific format and prepend the Cloudinary URL if it does
         let imageUrl = design.design.image;
         if (imageUrl.startsWith('/goyhu3obmrbyrkfawa3l.png')) {
           const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
@@ -41,7 +40,7 @@ export const ContestDesignsGrid: React.FC<ContestDesignsGridProps> = ({
             </p>
             <div className="mb-3">
               <Image
-                src={imageUrl} // Use the potentially modified image URL
+                src={imageUrl} 
                 alt={design.design.name}
                 width={300}
                 height={300}

@@ -40,7 +40,8 @@ const UserDesigns = () => {
   const fetchDesigns = async (email: string) => {
     try {
       setLoading(true);
-      const fetchedDesigns = await getCustomDesignsByEmail(email);
+      const a: any = await getCustomDesignsByEmail(email);
+      const fetchedDesigns = JSON.parse(a);
       setDesigns(fetchedDesigns);
     } catch (error) {
       console.error("Error fetching designs:", error);
