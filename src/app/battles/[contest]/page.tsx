@@ -1,5 +1,6 @@
 // @ts-nocheck
 "use server";
+
 import {
   getContestById,
   getDesignsByContestId,
@@ -7,7 +8,6 @@ import {
 import ContestPageClient from "./ContestPageClient";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/auth";
-import { ContestDocument, ContestDesignDocument } from "@/types/types";
 import { redirect, notFound } from "next/navigation";
 import mongoose from "mongoose";
 
@@ -19,31 +19,33 @@ export default async function ContestPage({
   const contestId = params.contest;
 
   if (!mongoose.Types.ObjectId.isValid(contestId)) {
-    notFound();
+    notFound(); 
     return;
   }
 
   const session = await getServerSession(authOptions);
   if (!session) {
-    redirect("/login");
+    redirect("/login"); 
     return;
   }
 
   try {
-    const [contestData, designs, isEnrolled] = await Promise.all([
+    const [contestData, designs] = await Promise.all([
       getContestById(contestId),
       getDesignsByContestId(contestId),
     ]);
+
+    const serializedContestData = JSON.parse(JSON.stringify(contestData));
+
 
     if (!contestData) {
       notFound();
       return;
     }
-    // console.log(contestData, designs, isEnrolled, contestId, session.user)
-    return ( 
-      // <div>hello</div>
+
+    return (
       <ContestPageClient
-        contestData={contestData}
+        contestData={serializedContestData}
         designs={designs}
         contestId={contestId}
         session={session}
@@ -51,6 +53,6 @@ export default async function ContestPage({
     );
   } catch (error) {
     console.error("Error processing contest page:", error);
-    redirect("/error");
+    redirect("/error"); 
   }
 }

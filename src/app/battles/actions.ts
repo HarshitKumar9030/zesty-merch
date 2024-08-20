@@ -32,10 +32,29 @@ export const getContestById = async (
   contestId: string
 ): Promise<ContestDocument | null> => {
   await connectDB();
-  return Contest.findById(contestId)
+  let a = Contest.findById(contestId)
     .populate("designs.user", "username") 
     .populate("designs.design", "name image")
     .exec();
+  return a;
+};
+
+export const getStringContestById = async (
+  contestId: string
+): Promise<string | null> => {
+  await connectDB();
+
+  const contestData = await Contest.findById(contestId)
+    .populate("designs.user", "username")
+    .populate("designs.design", "name image")
+    .lean()
+    .exec();
+
+  if (!contestData) {
+    return null;
+  }
+
+  return JSON.stringify(contestData);
 };
 
 export const getDesignsByContestId = async (
@@ -64,7 +83,7 @@ export const getDesignsByContestId = async (
       return [];
     }
 
-    return contest.designs || [];
+    return JSON.parse(JSON.stringify(contest.designs)) || [];
   } catch (error) {
     console.error("Error fetching designs by contest ID:", error);
     return [];
@@ -125,7 +144,7 @@ export const addDesignToContest = async (
 
   await contest.save();
 
-  return contest;
+  return JSON.stringify(contest);
 };
 
 export const getUserProfile = async (
@@ -171,10 +190,11 @@ export const getUserCustomDesigns = async (
     design.design._id.toString()
   );
 
-  return designs.map((design) => ({
+  let result = designs.map((design) => ({
     ...design.toObject(),
     isSubmitted: designIdsSubmitted.includes(design._id.toString()),
   }));
+  return JSON.stringify(result);
 };
 
 export const checkEnrollment = async (
