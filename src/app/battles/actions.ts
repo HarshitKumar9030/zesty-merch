@@ -2,6 +2,7 @@
 
 "use server";
 
+import mongoose from "mongoose"; 
 import { Contest } from "@/models/Contest";
 import { CustomDesign } from "@/models/CustomDesign";
 import User from "@/models/User";
@@ -210,7 +211,7 @@ export const enrollUserInContest = async (
     await contest.save();
   }
 
-  return contest;
+  return JSON.stringify(contest);
 };
 
 export const checkIfDesignSubmitted = async (
@@ -347,4 +348,30 @@ export const getDesignByContestAndUserId = async (
     rating: design.rating,
     ratings: design.ratings,
   })) as ContestDesign[];
+};
+
+// New funciton to check if user already has an username!
+
+export const checkUserHasUsername = async (userId: string): Promise<boolean> => {
+  await connectDB();
+  const user = await User.findById(userId).exec();
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return !!user.username;
+};
+
+
+// Satyanash ho Max Call stack ka ab meine naya funciton bana liya :)
+
+export const validateContestId = async (contestId: string): Promise<boolean> => {
+  await connectDB();
+
+  if (!mongoose.Types.ObjectId.isValid(contestId)) {
+    return false;
+  }
+
+  // Check if contest exists in the database
+  const contestExists = await Contest.exists({ _id: contestId });
+  return !!contestExists;
 };

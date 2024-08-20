@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { checkEnrollment, checkUsername, createUsername, enrollUserInContest } from "@/app/battles/actions";
+import { validateContestId } from "@/app/battles/actions"; 
+import { checkEnrollment, checkUserHasUsername, checkUsername, createUsername, enrollUserInContest } from "@/app/battles/actions";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
 import LoadingPage from "../../loading";
+import { notFound } from "next/navigation";
 
 const EnrollPage: React.FC = () => {
   const params = useParams();
@@ -16,26 +18,38 @@ const EnrollPage: React.FC = () => {
 
   const [username, setUsername] = useState<string>("");
   const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
-  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  const [hasUsername, setHasUsername] = useState<boolean | null>(null);
 
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkUserEnrollment = async () => {
+    const checkUserStatus = async () => {
+      // Validate if the contest ID is valid and exists
+      const isValidContest = await validateContestId(contest as string);
+      if (!isValidContest) {
+        router.replace('/404') 
+      }
+
       if (contest && session?.user?._id) {
-        const enrolled = await checkEnrollment(contest as string, session.user._id);
+        const [enrolled, hasUsername] = await Promise.all([
+          checkEnrollment(contest as string, session.user._id),
+          checkUserHasUsername(session.user._id),
+        ]);
+
         setIsEnrolled(enrolled);
-        setIsLoading(false); 
+        setHasUsername(hasUsername);
+        setIsLoading(false);
 
         if (enrolled) {
-          router.replace(`/battles/${contest}`); 
+          router.replace(`/battles/${contest}`);
         }
       }
     };
 
-    checkUserEnrollment();
+    checkUserStatus();
   }, [contest, session?.user?._id, router]);
 
   const handleUsernameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +74,21 @@ const EnrollPage: React.FC = () => {
   const handleEnroll = async () => {
     if (!session?.user?._id) return;
 
+    if (hasUsername && isEnrolled === false) {
+      await enrollUserInContest(contest as string, session.user._id);
+      setIsEnrolled(true);
+
+      toast({
+        title: "Successfully Enrolled",
+        description: "You have been successfully enrolled in the contest.",
+      });
+
+      setTimeout(() => {
+        router.replace(`/battles/${contest}`);
+      }, 2000);
+      return;
+    }
+
     if (!username || usernameError) {
       toast({
         title: "Invalid Username",
@@ -83,11 +112,37 @@ const EnrollPage: React.FC = () => {
 
     setTimeout(() => {
       router.replace(`/battles/${contest}`);
-    }, 3000);
+    }, 2000);
   };
 
   if (isLoading) {
-    return <LoadingPage />
+    return <LoadingPage />;
+  }
+
+  if (hasUsername && !isEnrolled) {
+    return (
+      <div className="container mx-auto p-6 max-w-lg text-center">
+        <button
+          onClick={() => router.push(`/battles/${contest}`)}
+          className="flex items-center mb-4 text-purple-600 hover:text-purple-800 transition"
+        >
+          <ArrowLeft className="mr-2" />
+          Back to Contest
+        </button>
+
+        <h1 className="text-4xl font-bold mb-8">Enroll in Contest</h1>
+        <p className="text-base text-neutral-500 mb-4">
+          You already have a username. <br />You can directly enroll in the contest.
+        </p>
+
+        <button
+          onClick={handleEnroll}
+          className="mt-6 py-3 px-8  bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-indigo-700 transition duration-300"
+        >
+          Enroll Now
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -113,10 +168,10 @@ const EnrollPage: React.FC = () => {
             onChange={handleUsernameChange}
             className={`w-full mb-4 p-3 border rounded-lg focus:outline-none focus:ring-2 ${
               usernameError
-              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-              : isUsernameAvailable
-              ? "border-green-500 focus:ring-green-500 focus:border-green-500"
-              : "border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                : isUsernameAvailable
+                ? "border-green-500 focus:ring-green-500 focus:border-green-500"
+                : "border-gray-300 focus:ring-purple-500 focus:border-purple-500"
             }`}
             placeholder="Enter your username"
           />
