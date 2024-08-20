@@ -338,11 +338,10 @@ export const getDesignByContestAndUserId = async (
 ): Promise<ContestDesign[]> => {
   await connectDB();
 
-  // Fetch the contest and populate necessary fields for the design and user
   const contest = await Contest.findById(contestId)
     .populate({
       path: 'designs.design',
-      select: 'name image description', // Fetch name, image, and description for designs
+      select: 'name image description', s
     })
     .populate({
       path: 'designs.user',
@@ -354,12 +353,10 @@ export const getDesignByContestAndUserId = async (
     throw new Error("Contest not found");
   }
 
-  // Filter designs belonging to the specified user
   const userDesigns = contest.designs.filter(
     (design) => design.user._id.toString() === userId
   );
 
-  // Map the designs to the expected format
   return userDesigns.map((design) => ({
     _id: design.design._id,
     name: design.design.name,
@@ -370,7 +367,6 @@ export const getDesignByContestAndUserId = async (
   })) as ContestDesign[];
 };
 
-// New funciton to check if user already has an username!
 
 export const checkUserHasUsername = async (userId: string): Promise<boolean> => {
   await connectDB();
@@ -391,7 +387,44 @@ export const validateContestId = async (contestId: string): Promise<boolean> => 
     return false;
   }
 
-  // Check if contest exists in the database
   const contestExists = await Contest.exists({ _id: contestId });
   return !!contestExists;
+};
+
+export const getUserSubmittedDesignsForContest = async (
+  email: string,
+  contestId: string
+): Promise<any> => {
+  await connectDB();
+
+  const user = await User.findOne({ email }).exec();
+  if (!user) return JSON.stringify([]); // Return empty if no user is found
+
+  const contest = await Contest.findById(contestId)
+    .populate({
+      path: "designs.design",
+      model: "CustomDesign",
+    })
+    .exec();
+
+  if (!contest) return JSON.stringify([]); 
+
+  const userSubmittedDesigns = contest.designs.filter(
+    (design) => design.user.toString() === user._id.toString()
+  );
+
+  const userDesigns = await Promise.all(
+    userSubmittedDesigns.map(async (design) => {
+      const designDetails = await CustomDesign.findById(design.design._id).exec();
+      return {
+        _id: design.design._id,
+        name: designDetails.name,
+        image: designDetails.image,
+        description: designDetails.description,
+        editUrl: designDetails.editUrl,
+      };
+    })
+  );
+
+  return JSON.stringify(userDesigns);
 };
