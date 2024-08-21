@@ -1,33 +1,106 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-# 🛠 Installation & Set Up
+# Zesty Merch
 
-Install dependecies
+**Zesty Merch** is a fully-featured e-commerce platform designed for advanced product customization, leveraging the power of the Canva Connect API. The platform also features a unique community-driven Design Battles system, where users can compete in design contests and have their designs rated.
 
-```bash
-npm install
-```
+## Table of Contents
 
-Run the development server:
+- [Inspiration](#inspiration)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Setup and Installation](#setup-and-installation)
+- [Environment Variables](#environment-variables)
+- [Running the Project](#running-the-project)
+- [Challenges and Learnings](#challenges-and-learnings)
+- [Future Plans](#future-plans)
 
-```bash
-npm run dev
-```
+## Inspiration
 
-Open http://localhost:3000 with your browser to see the result.
+Zesty Merch was born out of the desire to offer more robust customization options in the world of e-commerce. The idea evolved to include a Design Battles feature, allowing users to showcase their creativity and compete against others.
 
-## Environmental variables
+## Features
 
-Rename the file name in the root of the project to .env.local. and add your environment variables.
+- **Product Customization**: Users can fully customize products using Canva’s extensive element library.
+- **Design Battles**: Users can participate in design contests, receive ratings, and compete to be crowned the winner.
+- **Admin Dashboard**: Manage products, contests, newsletters, contact forms, and analytics.
+- **Stripe Integration**: Secure payment processing and order management.
+- **AI-Powered Image Descriptions**: Provides automated, accessible image descriptions.
 
-- If you have doubts about how to create a database in MongoDB [click here](https://www.mongodb.com/resources/products/fundamentals/create-database).
-  
-- If you have doubts about how to obtain Google Auth keys [click here](https://developers.google.com/identity/protocols/oauth2).
+## Tech Stack
 
-- To get the NextAuth secret key simply run this on your terminal and it will generate a random key for you.
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS, Framer Motion
+- **Backend**: Node.js, Express.js, MongoDB
+- **APIs and Libraries**: Canva Connect API, Cloudinary, Stripe, NextAuth
+- **Deployment and Hosting**: Vercel, Vercel KV, Cloudinary, MongoDB Atlas
 
-```bash
-npx auth secret
-```
+## Setup and Installation
 
-- If you have any doubts about how to obtain the Cloudinary secret keys [click here](https://cloudinary.com/documentation/cloudinary_credentials_tutorial).
+To get the project up and running locally, follow these steps:
+
+1. Clone the repository:
+
+   \`\`\`bash
+   git clone https://github.com/your-username/zesty-merch.git
+   cd zesty-merch
+   \`\`\`
+
+2. Install dependencies:
+
+   \`\`\`bash
+   npm install
+   \`\`\`
+
+3. Set up your environment variables (see below).
+
+## Environment Variables
+
+Create a `.env.local` file in the root of your project and add the following:
+
+\`\`\`plaintext
+MONGODB_URI=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+NEXTAUTH_SECRET=""
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_EMAIL_USERNAME=""
+NEXT_PUBLIC_EMAIL_PASSWORD=""
+NEXT_PUBLIC_PERSONAL_EMAIL=""
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+KV_URL=""
+KV_REST_API_URL=""
+KV_REST_API_TOKEN=""
+KV_REST_API_READ_ONLY_TOKEN=""
+ANALYZE=true
+\`\`\`
+
+- Replace each value with your specific configuration details.
+
+## Running the Project
+
+1. Run the development server:
+
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+
+2. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+## Challenges and Learnings
+
+Building Zesty Merch required overcoming challenges such as seamless integration with third-party APIs, managing complex MongoDB models, and developing an algorithm for design contests. The project strengthened my full-stack development skills, particularly in API integration, database management, and algorithm design.
+
+## Future Plans
+
+- Further expand product customization options.
+- Introduce more complex rating systems for Design Battles.
+- Enhance the AI’s image description capabilities.
+- Explore partnerships to grow the platform’s reach.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
