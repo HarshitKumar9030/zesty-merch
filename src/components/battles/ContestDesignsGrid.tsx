@@ -21,7 +21,7 @@ export const ContestDesignsGrid: React.FC<ContestDesignsGridProps> = ({
             design.ratings.length || 0;
 
         let imageUrl = design.design.image;
-        if (imageUrl.startsWith('/goyhu3obmrbyrkfawa3l.png')) {
+        if (imageUrl.startsWith('/')) {
           const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
           imageUrl = `${cloudinaryString}${imageUrl}`;
         }

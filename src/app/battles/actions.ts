@@ -428,3 +428,19 @@ export const getUserSubmittedDesignsForContest = async (
 
   return JSON.stringify(userDesigns);
 };
+
+export const validateDesignId = async (contestId: string, designId: string): Promise<boolean> => {
+  await connectDB();
+
+  if (!mongoose.Types.ObjectId.isValid(contestId) || !mongoose.Types.ObjectId.isValid(designId)) {
+    return false;
+  }
+
+  const contest = await Contest.findById(contestId).populate('designs.design');
+  if (!contest) {
+    return false;
+  }
+
+  const designExists = contest.designs.some((design) => design.design._id.toString() === designId);
+  return designExists;
+};
