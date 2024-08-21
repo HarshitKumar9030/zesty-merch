@@ -1,4 +1,3 @@
-
 # Zesty Merch
 
 **Zesty Merch** is a fully-featured e-commerce platform designed for advanced product customization, leveraging the power of the Canva Connect API. The platform also features a unique community-driven Design Battles system, where users can compete in design contests and have their designs rated.
