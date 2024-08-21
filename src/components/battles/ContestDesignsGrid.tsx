@@ -50,7 +50,7 @@ export const ContestDesignsGrid: React.FC<ContestDesignsGridProps> = ({
             <div className="flex justify-between items-center mb-3">
               <Rating averageRating={averageRating} />
               <p className="text-xs text-neutral-500">
-                {design.ratings.length} reviews
+                {design.ratings.length} ratings
               </p>
             </div>
             <div className="text-xs text-neutral-400">
