@@ -113,21 +113,7 @@ const DesignClient: React.FC<DesignClientProps> = ({ contest, designData }) => {
           </div>
         </div>
 
-        <div className="text-neutral-400 text-center mb-6">
-          <p
-            id="averageRating"
-            className="text-2xl font-semibold mb-3 flex flex-col items-center"
-          >
-            Average Rating
-            <span className="flex items-center text-yellow-500 overflow-hidden space-x-1">
-              <span>{initialAverageRating.toFixed(1)}</span>
-              <Star className="w-6 h-6 text-yellow-500" />
-              <span className="text-neutral-100 flex items-center overflow-hidden space-x-1">
-                <span>/ 5</span>
-                <Star className="w-6 h-6 text-neutral-100" />
-              </span>
-            </span>
-          </p>
+
           <RatingClient
             contestId={contest}
             designId={designData.design._id}
@@ -135,7 +121,6 @@ const DesignClient: React.FC<DesignClientProps> = ({ contest, designData }) => {
             totalRatings={designData.ratings.length}
             userInitialRating={userRating}
           />
-        </div>
 
         <div className="text-center mt-8">
           <Link href={`/battles/${contest}`}>

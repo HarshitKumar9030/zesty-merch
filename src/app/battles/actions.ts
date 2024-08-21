@@ -279,35 +279,44 @@ export const rateDesign = async (
 ) => {
   await connectDB();
 
+  if (!mongoose.Types.ObjectId.isValid(contestId)) {
+    throw new Error('Invalid contest ID');
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(designId)) {
+    throw new Error('Invalid design ID');
+  }
+
   const contest = await Contest.findById(contestId).exec();
-  if (!contest) throw new Error('Contest not found');
+  if (!contest) {
+    throw new Error('Contest not found');
+  }
 
   const design = contest.designs.find(
     (d) => d.design._id.toString() === designId
   );
-  
-  if (!design) throw new Error('Design not found');
+  if (!design) {
+    throw new Error('Design not found');
+  }
 
   const existingRating = design.ratings.find(
     (r) => r.user.toString() === userId
   );
 
   if (existingRating) {
-    // Update the existing rating
     existingRating.rating = rating;
   } else {
-    // Add new rating
     design.ratings.push({ user: userId, rating });
   }
 
-  // Calculate the new average rating
   design.rating =
     design.ratings.reduce((acc, curr) => acc + curr.rating, 0) /
     design.ratings.length;
 
   await contest.save();
-};
 
+  return design.rating; 
+};
 
 export const getUserEnrollmentStatus = async (userId: string, contestId: string): Promise<boolean> => {
   return await checkEnrollment(contestId, userId);
