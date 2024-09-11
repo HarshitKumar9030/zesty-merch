@@ -19,20 +19,21 @@ const DesignBattlesPage: React.FC = () => {
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const contestsData = await getAllContests(); 
+        const rawContestsData = await getAllContests(); 
+        const contestsData = JSON.parse(rawContestsData as any);
 
         const currentDate = new Date();
 
         const ongoing = contestsData
           .filter(
-            (contest) =>
+            (contest: { startAt: any; endAt: any; }) =>
               new Date(contest.startAt as any) <= currentDate &&
               new Date(contest.endAt as any) >= currentDate
           )
           .slice(0, 10);
 
         const upcoming = contestsData
-          .filter((contest) => new Date(contest.startAt as any) > currentDate)
+          .filter((contest: { startAt: any; }) => new Date(contest.startAt as any) > currentDate)
           .slice(0, 10);
 
         setOngoingContests(ongoing as ContestDocument[]);

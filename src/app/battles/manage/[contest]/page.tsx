@@ -84,6 +84,17 @@ const ManageDesignsPage: React.FC = () => {
     setDisplayedDesigns(nextDesigns);
     setCurrentPage(nextPage);
   };
+  
+  const normalizeImage = (image: string ) => {
+    if (image.startsWith("/")) {
+      const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
+      const imageUrl: string = `${cloudinaryString}${image}`;
+      return imageUrl as string;
+    }
+    else{
+      return image;
+    }
+  }
 
   if (loading) {
     return (
@@ -135,7 +146,7 @@ const ManageDesignsPage: React.FC = () => {
             {design.image && (
               <div className="mb-4 flex-grow">
                 <Image
-                  src={design.image}
+                  src={normalizeImage(design.image)}
                   alt={design.name}
                   width={500}
                   height={500}

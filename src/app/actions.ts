@@ -10,6 +10,7 @@ import { ContactDocument } from "@/types/types";
 import { Newsletter } from "@/models/Newsletter";
 import { Schema } from "mongoose";
 import Contest from "@/models/Contest";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export const getAllProducts = async () => {
   try {
@@ -158,7 +159,8 @@ export async function addOrEditDescription(designId: string, description: string
 
     design.description = description;
     await design.save();
-    return design;
+    revalidatePath('/designs')
+    return JSON.stringify(design) as any;
   } catch (error) {
     console.error('Error adding or editing description:', error);
     throw error;
@@ -175,7 +177,8 @@ export async function addOrEditName(designId: string, name: string): Promise<Cus
 
     design.name = name;
     await design.save();
-    return design;
+    revalidatePath('/designs')
+    return JSON.stringify(design) as any;
   } catch (error) {
     console.error('Error adding or editing name:', error);
     throw error;

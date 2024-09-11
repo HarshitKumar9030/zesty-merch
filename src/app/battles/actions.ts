@@ -1,11 +1,13 @@
-// @ts-nocheck 
+// @ts-nocheck
 
 "use server";
 
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 import { Contest } from "@/models/Contest";
 import { CustomDesign } from "@/models/CustomDesign";
 import User from "@/models/User";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/libs/auth";
 import { connectDB } from "@/libs/mongodb";
 import {
   ContestDesign,
@@ -13,12 +15,13 @@ import {
   CustomDesignDocument,
   UserDocument,
 } from "@/types/types";
+import { revalidatePath } from "next/cache";
 
 export const getAllContests = async (): Promise<Partial<ContestDocument>[]> => {
   await connectDB();
   const contests = await Contest.find().sort({ startAt: -1 });
-  
-  return contests.map(contest => ({
+
+  const contest = contests.map((contest) => ({
     _id: contest._id,
     name: contest.name,
     description: contest.description,
@@ -26,14 +29,19 @@ export const getAllContests = async (): Promise<Partial<ContestDocument>[]> => {
     endAt: contest.endAt,
     image: contest.image,
   }));
+  return JSON.stringify(contest);
 };
 
 export const getContestById = async (
   contestId: string
 ): Promise<ContestDocument | null> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
   let a = Contest.findById(contestId)
-    .populate("designs.user", "username") 
+    .populate("designs.user", "username")
     .populate("designs.design", "name image")
     .exec();
   return a;
@@ -43,7 +51,10 @@ export const getStringContestById = async (
   contestId: string
 ): Promise<string | null> => {
   await connectDB();
-
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   const contestData = await Contest.findById(contestId)
     .populate("designs.user", "username")
     .populate("designs.design", "name image")
@@ -62,7 +73,10 @@ export const getDesignsByContestId = async (
   options: { limit?: number } = {}
 ): Promise<CustomDesignDocument[]> => {
   await connectDB();
-
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   const { limit = 50 } = options;
 
   try {
@@ -75,7 +89,7 @@ export const getDesignsByContestId = async (
         path: "designs.design",
         select: "name image",
       })
-      .slice("designs", limit) 
+      .slice("designs", limit)
       .exec();
 
     if (!contest) {
@@ -92,6 +106,7 @@ export const getDesignsByContestId = async (
 
 export const checkUsername = async (username: string): Promise<boolean> => {
   await connectDB();
+
   const user = await User.findOne({ username }).exec();
   return !user;
 };
@@ -101,6 +116,10 @@ export const createUsername = async (
   userId: string
 ): Promise<UserDocument | null> => {
   await connectDB();
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   const user = await User.findById(userId).exec();
   if (user) {
     user.username = username;
@@ -115,6 +134,10 @@ export const addDesignToContest = async (
   userId: string
 ): Promise<ContestDocument | null> => {
   await connectDB();
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
 
   const design = await CustomDesign.findById(designId).exec();
   if (!design) {
@@ -161,26 +184,31 @@ export const getRandomContestId = async () => {
   const currentDate = new Date();
 
   const contests = await Contest.find({
-    startAt: { $lte: currentDate }, 
-    endAt: { $gte: currentDate },  
+    startAt: { $lte: currentDate },
+    endAt: { $gte: currentDate },
   }).exec();
 
   if (contests.length === 0) return null;
 
   const randomIndex = Math.floor(Math.random() * contests.length);
-  return contests[randomIndex]._id;
+  let a = contests[randomIndex]._id;
+  return JSON.stringify(a);
 };
-
-
 
 export const getUserCustomDesigns = async (
   email: string,
   contestId: string
 ) => {
   await connectDB();
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
 
   const designs = await CustomDesign.find({ email }).exec();
-  const contest = await Contest.findById(contestId).populate("designs.design").exec();
+  const contest = await Contest.findById(contestId)
+    .populate("designs.design")
+    .exec();
 
   if (!contest) {
     throw new Error("Contest not found");
@@ -201,6 +229,10 @@ export const checkEnrollment = async (
   contestId: string,
   userId: string
 ): Promise<boolean> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
   const contest = await Contest.findById(contestId);
   if (!contest) {
@@ -216,6 +248,10 @@ export const enrollUserInContest = async (
   contestId: string,
   userId: string
 ): Promise<ContestDocument | null> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
   const contest = await Contest.findById(contestId).exec();
   const user = await User.findById(userId).exec();
@@ -238,6 +274,10 @@ export const checkIfDesignSubmitted = async (
   contestId: string,
   designId: string
 ): Promise<boolean> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
   const contest = await Contest.findById(contestId).exec();
   if (!contest) {
@@ -249,18 +289,19 @@ export const checkIfDesignSubmitted = async (
   );
 };
 
-
 export const getDesignById = async (contestId: string, designId: string) => {
   await connectDB();
 
   const contest = await Contest.findById(contestId)
-    .populate('designs.design')
-    .populate('designs.user', 'username name')
+    .populate("designs.design")
+    .populate("designs.user", "username name")
     .exec();
 
   if (!contest) return null;
 
-  const design = contest.designs.find((d) => d.design._id.toString() === designId);
+  const design = contest.designs.find(
+    (d) => d.design._id.toString() === designId
+  );
   if (!design) return null;
 
   return {
@@ -277,26 +318,30 @@ export const rateDesign = async (
   userId: string,
   rating: number
 ) => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
 
   if (!mongoose.Types.ObjectId.isValid(contestId)) {
-    throw new Error('Invalid contest ID');
+    throw new Error("Invalid contest ID");
   }
 
   if (!mongoose.Types.ObjectId.isValid(designId)) {
-    throw new Error('Invalid design ID');
+    throw new Error("Invalid design ID");
   }
 
   const contest = await Contest.findById(contestId).exec();
   if (!contest) {
-    throw new Error('Contest not found');
+    throw new Error("Contest not found");
   }
 
   const design = contest.designs.find(
     (d) => d.design._id.toString() === designId
   );
   if (!design) {
-    throw new Error('Design not found');
+    throw new Error("Design not found");
   }
 
   const existingRating = design.ratings.find(
@@ -314,15 +359,29 @@ export const rateDesign = async (
     design.ratings.length;
 
   await contest.save();
-
-  return design.rating; 
+  revalidatePath(`/battles/${contestId}`)
+  return design.rating;
 };
 
-export const getUserEnrollmentStatus = async (userId: string, contestId: string): Promise<boolean> => {
+export const getUserEnrollmentStatus = async (
+  userId: string,
+  contestId: string
+): Promise<boolean> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   return await checkEnrollment(contestId, userId);
 };
 
-export const deleteDesignFromContest = async (contestId: string, designId: string): Promise<boolean> => {
+export const deleteDesignFromContest = async (
+  contestId: string,
+  designId: string
+): Promise<boolean> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
 
   const contest = await Contest.findById(contestId);
@@ -331,7 +390,9 @@ export const deleteDesignFromContest = async (contestId: string, designId: strin
   }
 
   const initialDesignCount = contest.designs.length;
-  contest.designs = contest.designs.filter(design => design.design.toString() !== designId);
+  contest.designs = contest.designs.filter(
+    (design) => design.design.toString() !== designId
+  );
 
   const isDeleted = initialDesignCount !== contest.designs.length;
   if (isDeleted) {
@@ -349,12 +410,13 @@ export const getDesignByContestAndUserId = async (
 
   const contest = await Contest.findById(contestId)
     .populate({
-      path: 'designs.design',
-      select: 'name image description', s
+      path: "designs.design",
+      select: "name image description",
+      s,
     })
     .populate({
-      path: 'designs.user',
-      select: '_id', // Only fetch the user ID
+      path: "designs.user",
+      select: "_id", // Only fetch the user ID
     })
     .exec();
 
@@ -376,9 +438,14 @@ export const getDesignByContestAndUserId = async (
   })) as ContestDesign[];
 };
 
-
-export const checkUserHasUsername = async (userId: string): Promise<boolean> => {
+export const checkUserHasUsername = async (
+  userId: string
+): Promise<boolean> => {
   await connectDB();
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   const user = await User.findById(userId).exec();
   if (!user) {
     throw new Error("User not found");
@@ -386,10 +453,11 @@ export const checkUserHasUsername = async (userId: string): Promise<boolean> => 
   return !!user.username;
 };
 
-
 // Satyanash ho Max Call stack ka ab meine naya funciton bana liya :)
 
-export const validateContestId = async (contestId: string): Promise<boolean> => {
+export const validateContestId = async (
+  contestId: string
+): Promise<boolean> => {
   await connectDB();
 
   if (!mongoose.Types.ObjectId.isValid(contestId)) {
@@ -404,6 +472,10 @@ export const getUserSubmittedDesignsForContest = async (
   email: string,
   contestId: string
 ): Promise<any> => {
+  const session = getServerSession(authOptions);
+  if (!session) {
+    return "please login";
+  }
   await connectDB();
 
   const user = await User.findOne({ email }).exec();
@@ -416,7 +488,7 @@ export const getUserSubmittedDesignsForContest = async (
     })
     .exec();
 
-  if (!contest) return JSON.stringify([]); 
+  if (!contest) return JSON.stringify([]);
 
   const userSubmittedDesigns = contest.designs.filter(
     (design) => design.user.toString() === user._id.toString()
@@ -424,7 +496,9 @@ export const getUserSubmittedDesignsForContest = async (
 
   const userDesigns = await Promise.all(
     userSubmittedDesigns.map(async (design) => {
-      const designDetails = await CustomDesign.findById(design.design._id).exec();
+      const designDetails = await CustomDesign.findById(
+        design.design._id
+      ).exec();
       return {
         _id: design.design._id,
         name: designDetails.name,
@@ -438,18 +512,26 @@ export const getUserSubmittedDesignsForContest = async (
   return JSON.stringify(userDesigns);
 };
 
-export const validateDesignId = async (contestId: string, designId: string): Promise<boolean> => {
+export const validateDesignId = async (
+  contestId: string,
+  designId: string
+): Promise<boolean> => {
   await connectDB();
 
-  if (!mongoose.Types.ObjectId.isValid(contestId) || !mongoose.Types.ObjectId.isValid(designId)) {
+  if (
+    !mongoose.Types.ObjectId.isValid(contestId) ||
+    !mongoose.Types.ObjectId.isValid(designId)
+  ) {
     return false;
   }
 
-  const contest = await Contest.findById(contestId).populate('designs.design');
+  const contest = await Contest.findById(contestId).populate("designs.design");
   if (!contest) {
     return false;
   }
 
-  const designExists = contest.designs.some((design) => design.design._id.toString() === designId);
+  const designExists = contest.designs.some(
+    (design) => design.design._id.toString() === designId
+  );
   return designExists;
 };

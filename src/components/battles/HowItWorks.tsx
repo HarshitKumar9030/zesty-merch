@@ -16,7 +16,8 @@ export const HowItWorks = () => {
 
   const handleJoinRandomContest = async () => {
     setLoading(true);
-    const randomContestId = await getRandomContestId();
+    const rawContestId = await getRandomContestId();
+    const randomContestId = JSON.parse(rawContestId as string);
     if (randomContestId) {
       router.push(`/battles/${randomContestId}`);
     } else {

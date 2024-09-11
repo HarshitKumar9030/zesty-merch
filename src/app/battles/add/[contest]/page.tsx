@@ -31,6 +31,8 @@ const AddDesignPage: React.FC = () => {
   const [contestData, setContestData] = useState<ContestDocument | null>(null);
   const [isValidContest, setIsValidContest] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [ image, setImage ] = useState<string | undefined>();
+  
 
   useEffect(() => {
     const fetchContestAndDesigns = async () => {
@@ -97,6 +99,12 @@ const AddDesignPage: React.FC = () => {
   const handleDesignSelection = (designId: string) => {
     setSelectedDesignId(designId);
     const selected = customDesigns.find((design) => design._id === designId);
+    let imageUrl = selected.image;
+    if (imageUrl.startsWith("/")) {
+      const cloudinaryString = `https://res.cloudinary.com/dz8sfaosb/image/upload/f_auto,c_limit,w_640,q_auto`;
+      imageUrl = `${cloudinaryString}${imageUrl}`;
+      setImage(imageUrl)
+    }
     setSelectedDesign(selected);
   };
 
@@ -122,6 +130,8 @@ const AddDesignPage: React.FC = () => {
       }
     }
   };
+
+  
 
   return (
     <motion.div
@@ -232,7 +242,7 @@ const AddDesignPage: React.FC = () => {
             {selectedDesign.image && (
               <div className="mb-4">
                 <Image
-                  src={selectedDesign.image}
+                  src={image as string}
                   alt={selectedDesign.name}
                   width={500}
                   height={500}

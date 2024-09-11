@@ -181,13 +181,13 @@ main {
 
 @media (max-width: 640px) {
   main {
-    padding: 0 24px 102px;
+    padding: 0 8px 102px;
   }
 }
 
 @media (max-width: 350px) {
   main {
-    padding: 0 14px 102px;
+    padding: 0 8px 102px;
   }
 }
 
