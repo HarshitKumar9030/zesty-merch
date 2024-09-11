@@ -38,16 +38,16 @@ To get the project up and running locally, follow these steps:
 
 1. Clone the repository:
 
-   \`\`\`bash
-   git clone https://github.com/your-username/zesty-merch.git
+   ```bash
+   git clone https://github.com/harshitkumar9030/zesty-merch.git
    cd zesty-merch
-   \`\`\`
+   ```
 
 2. Install dependencies:
 
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Set up your environment variables (see below).
 
@@ -55,7 +55,7 @@ To get the project up and running locally, follow these steps:
 
 Create a `.env.local` file in the root of your project and add the following:
 
-\`\`\`plaintext
+```plaintext
 MONGODB_URI=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
@@ -75,7 +75,7 @@ KV_REST_API_URL=""
 KV_REST_API_TOKEN=""
 KV_REST_API_READ_ONLY_TOKEN=""
 ANALYZE=true
-\`\`\`
+```
 
 - Replace each value with your specific configuration details.
 
@@ -83,9 +83,9 @@ ANALYZE=true
 
 1. Run the development server:
 
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
 2. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
