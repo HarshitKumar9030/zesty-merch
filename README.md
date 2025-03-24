@@ -103,3 +103,6 @@ Building Zesty Merch required overcoming challenges such as seamless integration
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+
+By [Leon](https://leoncyriac.me)
