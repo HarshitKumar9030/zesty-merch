@@ -10,6 +10,7 @@ export const Footer = () => {
     "text-sm transition duration-150 ease-in-out hover:text-white";
   const liStyles = "text-[#A1A1A1] my-1.5";
 
+  const year = new Date().getFullYear();
   return (
     <footer className="px-6 py-24 border-t border-solid bg-[#0A0A0A] border-[#242424]">
       <nav className="flex flex-wrap justify-around gap-10 mx-auto max-w-screen-2xl">
@@ -21,7 +22,7 @@ export const Footer = () => {
               title="Portfolio of Harshit"
               aria-label="Portfolio of Harshit"
             >
-              <span className="text-sm text-[#A1A1A1]">© 2024 Zesty Merch</span>
+              <span className="text-sm text-[#A1A1A1]">© {`${year}`} Zesty Merch</span>
             </Link>
           </div>
           <div className="flex gap-3.5 items-center">

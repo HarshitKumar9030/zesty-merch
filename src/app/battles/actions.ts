@@ -535,3 +535,87 @@ export const validateDesignId = async (
   );
   return designExists;
 };
+
+export const getUserDesigns = async (username: string): Promise<CustomDesignDocument[]> => {
+  await connectDB();
+  
+  try {
+    // First get the user by username
+    const user = await User.findOne({ username }).exec();
+    
+    if (!user) {
+      return [];
+    }
+    
+    // Fetch designs created by this user
+    const designs = await CustomDesign.find({ email: user.email })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .exec();
+      
+    return JSON.parse(JSON.stringify(designs));
+  } catch (error) {
+    console.error("Error fetching user designs:", error);
+    return [];
+  }
+};
+
+export const getUserContestWins = async (username: string): Promise<ContestDesign[]> => {
+  await connectDB();
+  
+  try {
+    // First get the user by username
+    const user = await User.findOne({ username }).exec();
+    
+    if (!user) {
+      return [];
+    }
+    
+    // Find all contests where this user has won
+    const contests = await Contest.find({
+      "designs.user": user._id,
+      "isCompleted": true,
+    })
+    .populate("designs.design", "name image description")
+    .exec();
+    
+    // Extract winning designs (top-rated design in each completed contest)
+    const winningDesigns: ContestDesign[] = [];
+    
+    contests.forEach(contest => {
+      // Skip incomplete contests
+      if (!contest.isCompleted) return;
+      
+      // Sort designs by rating, highest first
+      const sortedDesigns = [...contest.designs].sort((a, b) => b.rating - a.rating);
+      
+      // Find designs from this user
+      const userDesigns = sortedDesigns.filter(
+        design => design.user.toString() === user._id.toString()
+      );
+      
+      // If this user's design is the top-rated (winner)
+      if (
+        userDesigns.length > 0 && 
+        sortedDesigns.length > 0 && 
+        userDesigns[0].rating >= sortedDesigns[0].rating
+      ) {
+        // This user won the contest
+        winningDesigns.push({
+          _id: userDesigns[0].design._id,
+          name: userDesigns[0].design.name,
+          image: userDesigns[0].design.image,
+          description: userDesigns[0].design.description,
+          contestName: contest.name,
+          contestId: contest._id,
+          winDate: contest.endAt,
+        });
+      }
+    });
+    
+    return JSON.parse(JSON.stringify(winningDesigns));
+  } catch (error) {
+    console.error("Error fetching user contest wins:", error);
+    return [];
+  }
+};

@@ -27,7 +27,7 @@ const PoweredBy: React.FC = () => {
             }`}
           >
             <Image
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Canva_Logo.svg/2560px-Canva_Logo.svg.png"
+              src="https://upload.wikimedia.org/wikipedia/en/thumb/b/bb/Canva_Logo.svg/2560px-Canva_Logo.svg.png"
               alt="Canva Logo"
               width={160}
               height={60}
